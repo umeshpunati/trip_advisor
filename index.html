@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourism Recommender</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Destination Recommender</h1>
+        <form id="recommendForm">
+            <div class="input-group">
+                <label>Budget (USD):</label>
+                <input type="number" name="budget" id="budget" required min="2000">
+            </div>
+            <div class="input-group">
+                <label>Trip Type:</label>
+                <select name="trip_type" id="trip_type" required>
+                    <option value="Adventure">Adventure</option>
+                    <option value="Relaxation">Relaxation</option>
+                    <option value="Cultural">Cultural</option>
+                    <option value="Honeymoon">Honeymoon</option>
+                    <option value="Historical">Historical</option>
+                    <option value="Hill Station">Hill Station</option>
+                    <option value="Beach">Beach</option>
+                    <option value="Nature">Nature</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Transport Mode:</label>
+                <select name="mode_transport" id="mode_transport" required>
+                    <option value="Road">Road</option>
+                    <option value="Flight">Flight</option>
+                </select>
+            </div>
+            <button type="submit">Get Recommendation</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('recommendForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            try {
+                const response = await fetch('/recommend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams(data).toString()
+                });
+
+                const result = await response.json();
+                const resultDiv = document.getElementById('result');
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `<h2>Recommended Destination:</h2><p>${result.destination}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">${result.error}</p>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
